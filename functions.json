@@ -1,0 +1,12 @@
+[
+  {
+    "id": "compare-tables",
+    "title": "Сравнение таблиц",
+    "script": "assets/functions/compare-tables.js"
+  },
+  {
+    "id": "advance-vs-bank",
+    "title": "Авансовый отчёт vs Банк",
+    "script": "assets/functions/advance-vs-bank.js"
+  }
+]

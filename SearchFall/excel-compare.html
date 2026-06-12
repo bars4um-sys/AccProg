@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сравнение: Авансовый отчёт vs Банк</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    padding: 24px;
+    background: #f5f5f7;
+    color: #1d1d1f;
+  }
+  .container { max-width: 1300px; margin: 0 auto; }
+  h1 { margin: 0 0 6px; font-size: 24px; }
+  .subtitle { color: #6e6e73; margin: 0 0 20px; font-size: 14px; }
+  h3 { margin: 0 0 12px; font-size: 16px; }
+  .upload-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .upload-box, .section {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .section { margin-bottom: 16px; }
+  input[type="file"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #d2d2d7;
+    border-radius: 8px;
+    background: #ffffff;
+    font-size: 14px;
+  }
+  .file-info {
+    margin-top: 10px;
+    padding: 8px 10px;
+    background: #f0f0f5;
+    border-radius: 6px;
+    font-size: 13px;
+    min-height: 22px;
+    color: #424245;
+    word-break: break-word;
+  }
+  .file-info.error { background: #ffe5e5; color: #b00020; }
+  .file-info.ok { background: #e6f4ea; color: #1a7f37; }
+  .actions { margin: 14px 0; display: flex; gap: 10px; flex-wrap: wrap; }
+  button {
+    background: #0071e3;
+    color: #ffffff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover:not(:disabled) { background: #0077ed; }
+  button.secondary { background: #6e6e73; }
+  button.secondary:hover:not(:disabled) { background: #545457; }
+  button.danger { background: #b00020; }
+  button.danger:hover:not(:disabled) { background: #c5002c; }
+  button:disabled { background: #b6d4f3; color: #ffffff; cursor: not-allowed; }
+  button.secondary:disabled { background: #c7c7cc; }
+  button.danger:disabled { background: #e0a8af; cursor: not-allowed; }
+  .summary { font-size: 15px; margin-bottom: 12px; }
+  .summary b.warn { color: #b00020; }
+  .summary b.ok { color: #1a7f37; }
+  .table-wrapper {
+    overflow: auto;
+    max-height: 600px;
+    border: 1px solid #e5e5ea;
+    border-radius: 8px;
+  }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td {
+    border-bottom: 1px solid #e5e5ea;
+    border-right: 1px solid #e5e5ea;
+    padding: 6px 10px;
+    text-align: left;
+    white-space: nowrap;
+  }
+  th {
+    background: #f5f5f7;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    font-weight: 600;
+  }
+  tr:nth-child(even) td { background: #fafafa; }
+  tr.dup-row td { background: #fff4e5; }
+  .col-marker { color: #b00020; font-weight: 700; }
+  .col-marker-blue { color: #0071e3; font-weight: 700; }
+  .empty-msg { padding: 20px; text-align: center; color: #6e6e73; }
+  .step-tag {
+    display: inline-block;
+    background: #e5e5ea;
+    color: #1d1d1f;
+    border-radius: 10px;
+    padding: 2px 10px;
+    font-size: 12px;
+    margin-right: 8px;
+    font-weight: 600;
+  }
+  .group-separator td {
+    background: #ffe9b3 !important;
+    font-weight: 600;
+    color: #6b4400;
+    border-top: 2px solid #f0a020;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .badge.del { background: #ffc0c0; color: #7a0019; }
+  .badge.keep { background: #c8e6c9; color: #1a7f37; }
+  @media (max-width: 700px) {
+    .upload-section { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Сравнение таблиц Excel</h1>
+  <p class="subtitle"><span class="step-tag">Авансовый отчёт</span> проверяется на дубли, затем сравнивается со <span class="step-tag">Банком</span> по столбцу «Сумма»</p>
+
+  <div class="upload-section">
+    <div class="upload-box">
+      <h3>Авансовый отчёт</h3>
+      <input type="file" id="file1" accept=".xlsx,.xls,.xlsm,.xlsb">
+      <div class="file-info" id="info1">Файл не выбран</div>
+    </div>
+    <div class="upload-box">
+      <h3>Банк</h3>
+      <input type="file" id="file2" accept=".xlsx,.xls,.xlsm,.xlsb">
+      <div class="file-info" id="info2">Файл не выбран</div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button id="checkDupsBtn" disabled>Проверить дубли в Авансовом отчёте</button>
+    <button id="compareBtn" class="secondary" disabled>Сравнить с Банком</button>
+  </div>
+
+  <div class="section" id="dupsSection" style="display:none">
+    <h3>Шаг 1. Повторяющиеся записи в Авансовом отчёте</h3>
+    <div class="summary" id="dupsSummary"></div>
+    <div class="table-wrapper" id="dupsTableWrapper"></div>
+    <div class="actions" style="margin-top:14px">
+      <button id="downloadDupsBtn" class="secondary" disabled>Скачать таблицу в Excel</button>
+    </div>
+  </div>
+
+  <div class="section" id="resultSection" style="display:none">
+    <h3>Шаг 2. Строки из Банка без соответствия в Авансовом отчёте</h3>
+    <div class="summary" id="summary"></div>
+    <div class="table-wrapper" id="tableWrapper"></div>
+    <div class="actions" style="margin-top:14px">
+      <button id="downloadResultBtn" class="secondary" disabled>Скачать таблицу в Excel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // Номера столбцов (фиксированно, по визуальному положению):
+  //  - «Дата»  в Авансовом отчёте — 2-й столбец (индекс 1) — используется для поиска дублей
+  //  - «Сумма» в Авансовом отчёте — 5-й столбец (индекс 4) — используется для дублей и сравнения
+  //  - «Сумма» в Банке          — 2-й столбец (индекс 1) — для сравнения
+  var DATE_COLUMN_AO = 1;
+  var SUM_COLUMN_AO = 4;
+  var SUM_COLUMN_BANK = 1;
+
+  var aoData = null;
+  var bankData = null;
+  var dupsState = null;
+  var resultRows = [];
+  var resultHeaders = [];
+
+  function $(id) { return document.getElementById(id); }
+
+  function normalizeSum(value) {
+    if (value === null || value === undefined || value === '') return null;
+    var str = String(value).trim().replace(/\s+/g, '').replace(',', '.');
+    str = str.replace(/[^\d.\-]/g, '');
+    if (!str || str === '-' || str === '.') return null;
+    var num = parseFloat(str);
+    if (isNaN(num)) return null;
+    return Math.round(num * 100) / 100;
+  }
+
+  function normalizeDate(value) {
+    if (value === null || value === undefined || value === '') return null;
+    if (value instanceof Date && !isNaN(value.getTime())) {
+      return value.getFullYear() + '-' +
+        String(value.getMonth() + 1).padStart(2, '0') + '-' +
+        String(value.getDate()).padStart(2, '0');
+    }
+    var str = String(value).trim();
+    if (!str) return null;
+
+    // Excel serial date number
+    if (/^\d+(\.\d+)?$/.test(str)) {
+      var serial = parseFloat(str);
+      if (serial > 0 && serial < 100000) {
+        // Excel: days since 1899-12-30 (с учётом 1900 leap bug, но для наших целей достаточно)
+        var ms = Math.round((serial - 25569) * 86400 * 1000);
+        var d = new Date(ms);
+        if (!isNaN(d.getTime())) {
+          return d.getFullYear() + '-' +
+            String(d.getMonth() + 1).padStart(2, '0') + '-' +
+            String(d.getDate()).padStart(2, '0');
+        }
+      }
+    }
+
+    // DD.MM.YYYY или DD/MM/YYYY
+    var m1 = str.match(/^(\d{1,2})[./\-\s](\d{1,2})[./\-\s](\d{2,4})$/);
+    if (m1) {
+      var dd = parseInt(m1[1], 10);
+      var mm = parseInt(m1[2], 10);
+      var yy = parseInt(m1[3], 10);
+      if (yy < 100) yy += (yy >= 70 ? 1900 : 2000);
+      if (mm >= 1 && mm <= 12 && dd >= 1 && dd <= 31) {
+        return yy + '-' + String(mm).padStart(2, '0') + '-' + String(dd).padStart(2, '0');
+      }
+    }
+
+    // YYYY-MM-DD (ISO)
+    var m2 = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (m2) {
+      var y = parseInt(m2[1], 10), mo = parseInt(m2[2], 10), da = parseInt(m2[3], 10);
+      if (mo >= 1 && mo <= 12 && da >= 1 && da <= 31) {
+        return y + '-' + String(mo).padStart(2, '0') + '-' + String(da).padStart(2, '0');
+      }
+    }
+
+    // Последняя попытка: пусть JS попробует распарсить
+    var parsed = new Date(str);
+    if (!isNaN(parsed.getTime())) {
+      return parsed.getFullYear() + '-' +
+        String(parsed.getMonth() + 1).padStart(2, '0') + '-' +
+        String(parsed.getDate()).padStart(2, '0');
+    }
+
+    return null;
+  }
+
+  // Если первая строка пустая — это верхний уровень двухуровневой шапки
+  function detectHeaderRow(rows) {
+    if (!rows || rows.length === 0) return 0;
+    var first = rows[0] || [];
+    var isEmpty = true;
+    for (var i = 0; i < first.length; i++) {
+      var c = first[i];
+      if (!(c === null || c === undefined || String(c).trim() === '')) { isEmpty = false; break; }
+    }
+    if (isEmpty && rows.length > 1) return 1;
+    return 0;
+  }
+
+  function readExcelFile(file) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          if (typeof XLSX === 'undefined') {
+            reject(new Error('Библиотека XLSX не загружена (проверьте интернет)'));
+            return;
+          }
+          var data = new Uint8Array(e.target.result);
+          var wb = XLSX.read(data, { type: 'array' });
+          var firstSheetName = wb.SheetNames[0];
+          var sheet = wb.Sheets[firstSheetName];
+          var json = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '', raw: true });
+          resolve({ rows: json, sheetName: firstSheetName });
+        } catch (err) { reject(err); }
+      };
+      reader.onerror = function () { reject(reader.error); };
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  function setInfo(el, text, kind) {
+    el.textContent = text;
+    el.classList.remove('error', 'ok');
+    if (kind) el.classList.add(kind);
+  }
+
+  function updateButtons() {
+    var check = $('checkDupsBtn');
+    check.disabled = !(aoData && bankData);
+  }
+
+  function resetWorkflow() {
+    dupsState = null;
+    resultRows = [];
+    resultHeaders = [];
+    $('dupsSection').style.display = 'none';
+    $('resultSection').style.display = 'none';
+    $('compareBtn').disabled = !(aoData && bankData);
+    $('downloadDupsBtn').disabled = true;
+    $('downloadResultBtn').disabled = true;
+  }
+
+  // Привязка обработчиков
+  var file1Input = $('file1');
+  var file2Input = $('file2');
+  var info1 = $('info1');
+  var info2 = $('info2');
+
+  file1Input.addEventListener('change', function () {
+    var file = file1Input.files[0];
+    if (!file) return;
+    setInfo(info1, 'Чтение файла…', null);
+    readExcelFile(file).then(function (r) {
+      aoData = r.rows;
+      var headerRowIdx = detectHeaderRow(r.rows);
+      var headers = (r.rows[headerRowIdx] || []).slice();
+
+      var parts = [
+        file.name,
+        'лист: ' + r.sheetName,
+        'строк данных: ' + (r.rows.length - 1 - headerRowIdx),
+        '«Дата»: 2-й столбец (фиксированно)',
+        '«Сумма»: 5-й столбец (фиксированно)'
+      ];
+      setInfo(info1, parts.join(' | '), null);
+      resetWorkflow();
+      updateButtons();
+    }).catch(function (err) {
+      aoData = null;
+      setInfo(info1, 'Ошибка чтения: ' + err.message, 'error');
+      updateButtons();
+    });
+  });
+
+  file2Input.addEventListener('change', function () {
+    var file = file2Input.files[0];
+    if (!file) return;
+    setInfo(info2, 'Чтение файла…', null);
+    readExcelFile(file).then(function (r) {
+      bankData = r.rows;
+      var headerRowIdx = detectHeaderRow(r.rows);
+      var headers = (r.rows[headerRowIdx] || []).slice();
+
+      var parts = [
+        file.name,
+        'лист: ' + r.sheetName,
+        'строк данных: ' + (r.rows.length - 1 - headerRowIdx),
+        '«Сумма»: 2-й столбец (фиксированно)'
+      ];
+      setInfo(info2, parts.join(' | '), null);
+      resetWorkflow();
+      updateButtons();
+    }).catch(function (err) {
+      bankData = null;
+      setInfo(info2, 'Ошибка чтения: ' + err.message, 'error');
+      updateButtons();
+    });
+  });
+
+  // Шаг 1: проверка дублей (по совпадению Дата + Сумма)
+  $('checkDupsBtn').addEventListener('click', function () {
+    if (!aoData) { alert('Сначала загрузите Авансовый отчёт.'); return; }
+
+    var headerRowIdx = detectHeaderRow(aoData);
+    var dataStart = headerRowIdx + 1;
+    var headers = (aoData[headerRowIdx] || []).slice();
+    var colsCount = headers.length;
+    var dateCol = DATE_COLUMN_AO;
+    var sumCol = SUM_COLUMN_AO;
+
+    var groups = new Map();
+    for (var i = dataStart; i < aoData.length; i++) {
+      var row = aoData[i];
+      var dateKey = normalizeDate(row[dateCol]);
+      var sumKey = normalizeSum(row[sumCol]);
+      if (dateKey === null || sumKey === null) continue; // без даты или суммы — пропускаем
+      var key = dateKey + '|' + sumKey;
+      if (!groups.has(key)) groups.set(key, { date: dateKey, sum: sumKey, rows: [] });
+      groups.get(key).rows.push({ idx: i, row: row });
+    }
+
+    var dupGroups = [];
+    groups.forEach(function (g) {
+      if (g.rows.length > 1) {
+        g.rows.sort(function (a, b) { return a.idx - b.idx; });
+        dupGroups.push(g);
+      }
+    });
+
+    dupsState = { headers: headers, colsCount: colsCount, groups: dupGroups };
+    renderDups();
+  });
+
+  function renderDups() {
+    var dupsSection = $('dupsSection');
+    var dupsSummary = $('dupsSummary');
+    var dupsTableWrapper = $('dupsTableWrapper');
+    var downloadDupsBtn = $('downloadDupsBtn');
+    var compareBtn = $('compareBtn');
+
+    dupsSection.style.display = 'block';
+    var headerRowIdx = detectHeaderRow(aoData);
+    var totalRows = aoData.length - 1 - headerRowIdx;
+    var groupsCount = dupsState.groups.length;
+    var dupCount = 0;
+    dupsState.groups.forEach(function (g) { dupCount += g.rows.length; });
+
+    if (groupsCount === 0) {
+      dupsSummary.innerHTML = 'Повторов не найдено. <b class="ok">Можно переходить к сравнению с Банком.</b>';
+      dupsTableWrapper.innerHTML = '<div class="empty-msg">Дублей по паре «Дата + Сумма» нет.</div>';
+      downloadDupsBtn.disabled = true;
+      compareBtn.disabled = !bankData;
+      return;
+    }
+
+    dupsSummary.innerHTML =
+      'Групп дублей: <b class="warn">' + groupsCount + '</b> &nbsp;·&nbsp; ' +
+      'всего строк-дублей: <b class="warn">' + dupCount + '</b> &nbsp;·&nbsp; ' +
+      'из общего числа: ' + totalRows + '. ' +
+      '<br>Поиск вёлся по совпадению <b>Даты</b> (2-й столбец) и <b>Суммы</b> (5-й столбец).';
+
+    var html = '<table><thead><tr>';
+    dupsState.headers.forEach(function (h, idx) {
+      var isDate = idx === DATE_COLUMN_AO;
+      var isSum = idx === SUM_COLUMN_AO;
+      var marker = isDate
+        ? ' <span class="col-marker" title="Столбец даты — ключ дублей">★</span>'
+        : (isSum ? ' <span class="col-marker-blue" title="Столбец суммы — ключ дублей и сравнение с Банком">✓</span>' : '');
+      html += '<th>' + escapeHtml(String(h == null ? '' : h)) + marker + '</th>';
+    });
+    html += '</tr></thead><tbody>';
+
+    dupsState.groups.forEach(function (g) {
+      html += '<tr class="group-separator"><td colspan="' + dupsState.colsCount + '">Группа: дата «' +
+        escapeHtml(g.date) + '» + сумма «' + escapeHtml(String(g.sum)) + '» — ' + g.rows.length + ' строк</td></tr>';
+      g.rows.forEach(function (entry) {
+        html += '<tr class="dup-row">';
+        for (var c = 0; c < dupsState.colsCount; c++) {
+          var v = entry.row[c];
+          html += '<td>' + escapeHtml(v === null || v === undefined ? '' : String(v)) + '</td>';
+        }
+        html += '</tr>';
+      });
+    });
+
+    html += '</tbody></table>';
+    dupsTableWrapper.innerHTML = html;
+
+    downloadDupsBtn.disabled = false;
+    compareBtn.disabled = !bankData;
+  }
+
+  // Шаг 2: сравнение
+  $('compareBtn').addEventListener('click', function () {
+    if (!aoData) { alert('Сначала загрузите Авансовый отчёт.'); return; }
+    if (!bankData) { alert('Сначала загрузите Банк.'); return; }
+
+    var sumsAO = new Set();
+    for (var i = 1; i < aoData.length; i++) {
+      var s = normalizeSum(aoData[i][SUM_COLUMN_AO]);
+      if (s !== null) sumsAO.add(s);
+    }
+
+    var headerRowIdxBank = detectHeaderRow(bankData);
+    resultHeaders = (bankData[headerRowIdxBank] || []).slice();
+    var colsCount = resultHeaders.length;
+    resultRows = [];
+
+    for (var j = headerRowIdxBank + 1; j < bankData.length; j++) {
+      var row = bankData[j];
+      var sb = normalizeSum(row[SUM_COLUMN_BANK]);
+      if (sb === null || !sumsAO.has(sb)) {
+        var padded = new Array(colsCount);
+        for (var c = 0; c < colsCount; c++) padded[c] = row[c] !== undefined ? row[c] : '';
+        resultRows.push(padded);
+      }
+    }
+
+    displayResult();
+  });
+
+  function displayResult() {
+    var resultSection = $('resultSection');
+    var summaryEl = $('summary');
+    var tableWrapper = $('tableWrapper');
+    var downloadResultBtn = $('downloadResultBtn');
+
+    resultSection.style.display = 'block';
+    var headerRowIdxBank = detectHeaderRow(bankData);
+    var totalRows = bankData.length - 1 - headerRowIdxBank;
+    var matched = totalRows - resultRows.length;
+    summaryEl.innerHTML =
+      'Строк в Банке: <b>' + totalRows + '</b> &nbsp;·&nbsp; ' +
+      'совпало с АО: <b class="ok">' + matched + '</b> &nbsp;·&nbsp; ' +
+      'без соответствия: <b class="warn">' + resultRows.length + '</b>';
+
+    if (resultRows.length === 0) {
+      tableWrapper.innerHTML = '<div class="empty-msg">Все строки Банка имеют соответствие в Авансовом отчёте по столбцу «Сумма».</div>';
+      downloadResultBtn.disabled = true;
+      return;
+    }
+
+    downloadResultBtn.disabled = false;
+    var html = '<table><thead><tr>';
+    resultHeaders.forEach(function (h, idx) {
+      var marker = idx === SUM_COLUMN_BANK ? ' <span class="col-marker" title="Столбец сравнения">★</span>' : '';
+      html += '<th>' + escapeHtml(String(h == null ? '' : h)) + marker + '</th>';
+    });
+    html += '</tr></thead><tbody>';
+    resultRows.forEach(function (row) {
+      html += '<tr>';
+      for (var c = 0; c < resultHeaders.length; c++) {
+        var v = row[c];
+        html += '<td>' + escapeHtml(v === null || v === undefined ? '' : String(v)) + '</td>';
+      }
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    tableWrapper.innerHTML = html;
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  // Скачивание таблицы дублей
+  $('downloadDupsBtn').addEventListener('click', function () {
+    if (!dupsState || dupsState.groups.length === 0) return;
+    var headers = dupsState.headers;
+    var data = [headers];
+    dupsState.groups.forEach(function (g) {
+      g.rows.forEach(function (entry) {
+        var padded = new Array(headers.length);
+        for (var c = 0; c < headers.length; c++) {
+          padded[c] = entry.row[c] !== undefined ? entry.row[c] : '';
+        }
+        data.push(padded);
+      });
+    });
+    var ws = XLSX.utils.aoa_to_sheet(data);
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Дубли АО');
+    var ts = new Date().toISOString().slice(0, 10);
+    XLSX.writeFile(wb, 'dubles_' + ts + '.xlsx');
+  });
+
+  // Скачивание таблицы результата сравнения
+  $('downloadResultBtn').addEventListener('click', function () {
+    if (resultRows.length === 0) return;
+    var wsData = [resultHeaders].concat(resultRows);
+    var ws = XLSX.utils.aoa_to_sheet(wsData);
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Результат');
+    var ts = new Date().toISOString().slice(0, 10);
+    XLSX.writeFile(wb, 'result_' + ts + '.xlsx');
+  });
+})();
+</script>
+</body>
+</html>

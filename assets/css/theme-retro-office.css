@@ -1,0 +1,150 @@
+/* ============================================================
+ * ТЕМА 2 — «Ретро-офис» (Vintage Office Software, стиль Win95)
+ * Светлый «оконный» интерфейс: серый, синяя шапка панелей,
+ * объёмные bevel-кнопки, строгая табличная сетка, моноширинный шрифт.
+ * ============================================================ */
+
+:root {
+  --accent: #000080;          /* классический синий заголовка окна */
+  --accent-2: #008080;        /* бирюза */
+  --bg: #008080;              /* бирюзовый «рабочий стол» */
+  --panel-bg: #c0c0c0;        /* серебристо-серый */
+  --border: #808080;
+  --text: #000000;
+  --text-muted: #404040;
+  --ok: #006000;
+  --ok-bg: #d4f0d4;
+  --warn: #800000;
+  --warn-bg: #f0d4d4;
+  --sidebar-bg: #c0c0c0;
+  --sidebar-text: #000000;
+  --radius: 0px;              /* без скруглений — углы прямые */
+}
+
+body {
+  font-family: "MS Sans Serif", "Tahoma", "Segoe UI", sans-serif;
+  background: var(--bg);
+}
+
+/* Утилита: объёмная рамка «выпуклая» (как окна/кнопки Win95) */
+/* светлый сверху-слева, тёмный снизу-справа */
+
+/* ---- Левая панель: серое окно с объёмной рамкой ---- */
+.sidebar {
+  background: var(--panel-bg);
+  color: #000;
+  border-right: 2px solid #404040;
+  box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080;
+}
+.sidebar-header {
+  background: linear-gradient(90deg, #000080 0%, #1084d0 100%);
+  border-bottom: 2px solid #404040;
+}
+.logo { color: #ffffff; font-weight: 700; font-family: "MS Sans Serif", Tahoma, sans-serif; }
+.logo-sub { color: #c5d8f0; }
+
+.fn-item {
+  color: #000;
+  border-radius: 0;
+  border: 1px solid transparent;
+}
+.fn-item:hover { background: #d8d8d8; }
+.fn-item.active {
+  background: #000080;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* ---- Шапка рабочей области ---- */
+.ws-header h1 {
+  font-family: "MS Sans Serif", Tahoma, sans-serif;
+  color: #ffffff;
+  background: linear-gradient(90deg, #000080 0%, #1084d0 100%);
+  padding: 6px 12px;
+  display: inline-block;
+  box-shadow: 1px 1px 0 #00004d;
+}
+.ws-subtitle { color: #e0e0e0; }
+.workspace { background: var(--bg); }
+
+/* ---- Панели как окошки Win95 ---- */
+.panel {
+  background: var(--panel-bg);
+  border: 0;
+  border-radius: 0;
+  box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #404040,
+              inset 2px 2px 0 #dfdfdf, inset -2px -2px 0 #808080;
+  padding: 3px;
+}
+.panel-title {
+  background: linear-gradient(90deg, #000080 0%, #1084d0 100%);
+  color: #ffffff;
+  border-bottom: 0;
+  border-radius: 0;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+.panel-body { background: #c0c0c0; }
+.placeholder { color: #404040; }
+
+/* ---- Поля загрузки: «вдавленные» инпуты ---- */
+.upload-box {
+  background: #c0c0c0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: inset 1px 1px 0 #808080, inset -1px -1px 0 #ffffff;
+}
+.upload-box h3 { color: #000080; }
+.upload-box input[type="file"] {
+  background: #ffffff;
+  border-radius: 0;
+  box-shadow: inset 1px 1px 0 #808080, inset -1px -1px 0 #ffffff;
+}
+.file-info { border-radius: 0; box-shadow: inset 1px 1px 0 #808080; }
+
+/* ---- Кнопки: объёмные bevel ---- */
+button {
+  font-family: "MS Sans Serif", Tahoma, sans-serif;
+  background: #c0c0c0;
+  color: #000000;
+  border-radius: 0;
+  box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #404040,
+              inset 2px 2px 0 #dfdfdf, inset -2px -2px 0 #808080;
+  font-weight: 400;
+}
+button:hover:not(:disabled) { background: #c8c8c8; }
+button:active:not(:disabled) {
+  box-shadow: inset 1px 1px 0 #404040, inset -1px -1px 0 #ffffff;
+  transform: none;
+}
+button.secondary { background: #c0c0c0; color: #000; }
+button.danger { background: #c0c0c0; color: #800000; font-weight: 700; }
+button:disabled { background: #c0c0c0; color: #808080; }
+
+/* ---- Таблицы: строгая сетка табличного редактора ---- */
+table { font-family: "Courier New", monospace; }
+th {
+  background: #c0c0c0;
+  color: #000080;
+  border: 1px solid #808080;
+  box-shadow: inset 1px 1px 0 #ffffff;
+}
+td { border: 1px solid #d4d4d4; }
+tr:nth-child(even) td { background: #eaeaea; }
+.table-wrapper {
+  border: 0;
+  border-radius: 0;
+  box-shadow: inset 1px 1px 0 #808080, inset -1px -1px 0 #ffffff;
+  background: #ffffff;
+}
+
+/* ---- Список расхождений ---- */
+.diff-item { background: #ffffe0; border-left: 4px solid #000080; border-radius: 0; }
+.diff-amount .val { font-family: "Courier New", monospace; }
+.no-diff { background: var(--ok-bg); color: var(--ok); border: 1px solid #808080; border-radius: 0; }
+.summary b.warn { color: #800000; }
+.summary b.ok { color: #006000; }
+
+.step-tag { background: #000080; color: #fff; border-radius: 0; }
+
+.msg { border-radius: 0; }

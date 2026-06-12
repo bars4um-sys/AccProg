@@ -1,0 +1,133 @@
+/* ============================================================
+ * ТЕМА 3 — «Винтажный канцелярский / пастельный» (Soft Vintage)
+ * Милый винтажный ежедневник: пастель, акварельная бумага,
+ * мягкие карточки, деликатные цветочные акценты.
+ * ============================================================ */
+
+:root {
+  --accent: #b5697f;          /* пыльная роза */
+  --accent-2: #c79a4e;        /* тёплое золото */
+  --bg: #fbf3ee;              /* кремово-розовая бумага */
+  --panel-bg: #fffdfb;
+  --border: #ecd9d0;
+  --text: #5a4750;            /* мягкий тёмно-сливовый */
+  --text-muted: #a08b92;
+  --ok: #5e8a6a;
+  --ok-bg: #e4f0e6;
+  --warn: #b5697f;
+  --warn-bg: #f6e3e8;
+  --sidebar-bg: #6d4b57;      /* приглушённый сливовый */
+  --sidebar-text: #f3e6e1;
+  --radius: 16px;
+}
+
+body {
+  font-family: "Georgia", "Palatino Linotype", "Book Antiqua", serif;
+  background-color: var(--bg);
+  /* лёгкая акварельная подложка из мягких пятен */
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(199,154,78,0.07) 0, transparent 28%),
+    radial-gradient(circle at 85% 12%, rgba(181,105,127,0.07) 0, transparent 26%),
+    radial-gradient(circle at 75% 88%, rgba(94,138,106,0.06) 0, transparent 30%);
+}
+
+/* ---- Левая панель: сливовая с золотой каймой ---- */
+.sidebar {
+  background: linear-gradient(180deg, #75505d 0%, #634450 100%);
+  border-right: 2px solid var(--accent-2);
+}
+.sidebar-header { border-bottom: 1px solid rgba(243,230,225,0.25); }
+.logo {
+  font-family: "Georgia", serif;
+  color: #fbeee9;
+  letter-spacing: 1px;
+}
+/* маленький цветочек у логотипа */
+.logo::before { content: "❀ "; color: var(--accent-2); }
+.logo-sub { color: #d8c2c8; font-style: italic; }
+
+.fn-item { color: #f1e2dd; border-radius: 12px; }
+.fn-item:hover { background: rgba(243,230,225,0.14); }
+.fn-item.active {
+  background: linear-gradient(180deg, #d59aab 0%, #c2899b 100%);
+  color: #4a323b;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(80,40,55,0.25);
+}
+
+/* ---- Шапка ---- */
+.ws-header h1 {
+  font-family: "Georgia", serif;
+  color: var(--accent);
+}
+.ws-header h1::after { content: " ❀"; color: var(--accent-2); font-size: 0.7em; }
+.ws-subtitle { font-style: italic; color: var(--text-muted); }
+
+/* ---- Панели: мягкие карточки с тенью ---- */
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 18px rgba(150,90,110,0.10);
+}
+.panel-title {
+  background: linear-gradient(180deg, #fbeef0 0%, #f6e3e8 100%);
+  color: var(--accent);
+  border-bottom: 1px solid var(--border);
+  letter-spacing: 1px;
+  font-family: "Georgia", serif;
+}
+
+/* ---- Поля загрузки ---- */
+.upload-box {
+  background: #fffaf7;
+  border: 1.5px dashed var(--accent);
+  border-radius: 12px;
+}
+.upload-box h3 { font-family: "Georgia", serif; color: var(--accent); }
+.upload-box input[type="file"] { border-color: var(--border); border-radius: 10px; }
+
+/* ---- Кнопки-«пилюли» ---- */
+button {
+  font-family: "Georgia", serif;
+  background: linear-gradient(180deg, #c47e92 0%, #b5697f 100%);
+  border-radius: 22px;
+  box-shadow: 0 3px 8px rgba(181,105,127,0.30);
+  letter-spacing: 0.3px;
+}
+button:hover:not(:disabled) { background: linear-gradient(180deg, #cd8a9d 0%, #be7589 100%); }
+button.secondary {
+  background: linear-gradient(180deg, #d4ac63 0%, #c79a4e 100%);
+  color: #4a3a1c;
+}
+button.secondary:hover:not(:disabled) { background: linear-gradient(180deg, #ddb872 0%, #d0a559 100%); }
+button.danger { background: linear-gradient(180deg, #b08a96 0%, #9c7682 100%); }
+button:disabled { background: #e6d4d9; color: #b3a0a6; box-shadow: none; }
+
+/* ---- Таблицы ---- */
+th {
+  background: #f6e3e8;
+  color: var(--accent);
+  font-family: "Georgia", serif;
+}
+tr:nth-child(even) td { background: #fdf6f8; }
+.table-wrapper { border-color: var(--border); border-radius: 12px; }
+
+/* ---- Список расхождений ---- */
+.diff-item {
+  background: #fdf2e8;
+  border-left: 4px solid var(--accent-2);
+  border-radius: 12px;
+}
+.no-diff { background: var(--ok-bg); color: var(--ok); border: 1px solid #cfe3d4; border-radius: 12px; }
+.summary b.warn { color: var(--accent); }
+.summary b.ok { color: var(--ok); }
+
+.step-tag {
+  background: #f6e3e8;
+  color: var(--accent);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.msg { border-radius: 12px; }

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AccProg — набор утилит</title>
+  <link rel="stylesheet" href="assets/css/app.css">
+  <!-- Слот для активной темы (переключается селектором в шапке) -->
+  <link rel="stylesheet" href="" id="themeLink">
+  <script src="assets/vendor/xlsx.full.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <!-- ЛЕВАЯ ПАНЕЛЬ — выбор функций -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <span class="logo">AccProg</span>
+        <span class="logo-sub">набор утилит</span>
+      </div>
+      <nav class="fn-menu" id="fnMenu">
+        <!-- пункты меню рендерит core.js из functions.json -->
+      </nav>
+    </aside>
+
+    <!-- РАБОЧАЯ ОБЛАСТЬ -->
+    <main class="workspace">
+      <header class="ws-header">
+        <div class="ws-header-row">
+          <div>
+            <h1 id="fnTitle">Выберите функцию</h1>
+            <p id="fnDescription" class="ws-subtitle"></p>
+          </div>
+          <label class="theme-switch">
+            <span class="theme-switch-label">Оформление:</span>
+            <select id="themeSelect">
+              <option value="">Современная (по умолчанию)</option>
+              <option value="assets/css/theme-cozy-ledger.css">1 · Уютная бухгалтерия</option>
+              <option value="assets/css/theme-retro-office.css">2 · Ретро-офис (Win95)</option>
+              <option value="assets/css/theme-vintage.css">3 · Винтажный пастельный</option>
+            </select>
+          </label>
+        </div>
+      </header>
+
+      <!-- ПАНЕЛЬ 1 — ввод данных -->
+      <section class="panel" id="panelInput">
+        <div class="panel-title">Ввод данных</div>
+        <div class="panel-body" id="panelInputBody">
+          <div class="placeholder">Выберите функцию в левом меню, чтобы начать.</div>
+        </div>
+      </section>
+
+      <!-- ПАНЕЛЬ 2 — промежуточные операции -->
+      <section class="panel" id="panelActions">
+        <div class="panel-title">Операции</div>
+        <div class="panel-body actions-row" id="panelActionsBody"></div>
+      </section>
+
+      <!-- ПАНЕЛЬ 3 — результат -->
+      <section class="panel panel-output" id="panelOutput">
+        <div class="panel-title">Результат</div>
+        <div class="panel-body" id="panelOutputBody">
+          <div class="placeholder">Здесь появится результат после выполнения операции.</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Переключатель тем -->
+  <script>
+    (function () {
+      var link = document.getElementById('themeLink');
+      var sel = document.getElementById('themeSelect');
+      var saved = localStorage.getItem('accprog-theme') || '';
+      link.setAttribute('href', saved);
+      sel.value = saved;
+      sel.addEventListener('change', function () {
+        link.setAttribute('href', sel.value);
+        localStorage.setItem('accprog-theme', sel.value);
+      });
+    })();
+  </script>
+
+  <!-- Ядро и общие утилиты -->
+  <script src="assets/js/utils.js"></script>
+  <script src="assets/js/core.js"></script>
+</body>
+</html>
