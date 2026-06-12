@@ -1,8 +1,7 @@
 # OS
 .DS_Store
 
-# Python virtualenv (артефакт демо-приложения SearchDiff)
-SearchDiff/.venv/
+# Python virtualenv (артефакты демо-приложений)
 **/.venv/
 __pycache__/
 *.pyc
